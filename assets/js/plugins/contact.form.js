@@ -10,38 +10,30 @@
  *
  **/
 
-(function ($) {
-    'use strict';
 
-    var form = $('#contact-form');
-    var formMessages = $('#form-messages');
+// Initialize EmailJS with your user ID
 
-    $(form).submit(function (e) {
-        e.preventDefault();
 
-        // Form data serialize + phone field যুক্ত করা
-        var formData = $(form).serialize() + "&phone=" + $('#contact-phone').val();
+function sendMail(event) {
+    event.preventDefault(); // Prevent form reload
 
-        $.ajax({
-            type: 'POST',
-            url: $(form).attr('action'),
-            data: formData
-        })
-        .done(function (response) {
-            $(formMessages).removeClass('error').addClass('success').text(response);
+    let parms = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        subject: document.getElementById("subject").value,
+        message: document.getElementById("message").value, // Correct ID
+    };
 
-            // ইনপুট ফিল্ড ক্লিয়ার করা
-            $('#contact-name, #contact-email, #subject, #contact-message, #contact-phone').val('');
-        })
-        .fail(function (data) {
-            $(formMessages).removeClass('success').addClass('error');
-
-            if (data.responseText !== '') {
-                $(formMessages).text(data.responseText);
-            } else {
-                $(formMessages).text('Oops! An error occurred and your message could not be sent.');
-            }
+    emailjs.send("service_79ukbca", "template_kk0omni", parms)
+        .then(function() {
+            alert("Request sent successfully. I will get back to you shortly.");
+        }, function(error) {
+            alert("Failed to send request. Please try again.");
         });
-    });
+}
 
-})(jQuery);
+// Attach event listener to the form
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('.tmp-dynamic-form').addEventListener('submit', sendMail);
+});

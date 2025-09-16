@@ -836,3 +836,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+        function sendEmail() {
+            Email.send({
+                Host : "gmail.com",
+                Username : "akanomichael3103@gmail.com",
+                Password : "Mikedore1122",
+                To : 'akanomichael3103@gmail.com',
+                From : document.getElementById("email").value,
+                Subject : "New Contact Form Enquiry",
+                Body : "And this is the body"
+            }).then(
+            message => alert(message)
+            );
+        }
