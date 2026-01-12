@@ -28,11 +28,12 @@ function sendMail(event) {
     emailjs.send("service_79ukbca", "template_kk0omni", parms)
         .then(function() {
             alert("Request sent successfully. I will get back to you shortly.");
+            location.reload(); // Reload the page after successful submission
         }, function(error) {
             alert("Failed to send request. Please try again.");
         });
 }
-
+ 
 // Attach event listener to the form
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.tmp-dynamic-form').addEventListener('submit', sendMail);
