@@ -16,6 +16,38 @@
     <link rel="stylesheet" href="assets/css/vendor/bootstrap.min.css">
     <!-- custom css -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <script>
+        (function () {
+            var storageKey = "preferred-theme";
+            var storedTheme = null;
+
+            try {
+                storedTheme = window.localStorage.getItem(storageKey);
+            } catch (error) {
+                storedTheme = null;
+            }
+
+            var preferredTheme = storedTheme === "dark" || storedTheme === "light"
+                ? storedTheme
+                : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+            var path = window.location.pathname;
+            var isHtmlPage = /\.html$/i.test(path);
+            var isLightPage = /-white\.html$/i.test(path);
+            var targetPath = null;
+
+            if (isHtmlPage) {
+                if (preferredTheme === "light" && !isLightPage) {
+                    targetPath = path.replace(/\.html$/i, "-white.html");
+                } else if (preferredTheme === "dark" && isLightPage) {
+                    targetPath = path.replace(/-white\.html$/i, ".html");
+                }
+            }
+
+            if (targetPath && targetPath !== path) {
+                window.location.replace(targetPath + window.location.search + window.location.hash);
+            }
+        })();
+    </script>
 </head>
 
 <body class="blog-details inner">
@@ -72,6 +104,12 @@
                                     <a href="https://www.facebook.com/Mikedore1998"><i class="fa-brands fa-facebook-f"></i></a>
                                 </div>
                             </div>
+                            <button class="theme-toggle-btn" type="button" data-theme-toggle aria-label="Toggle theme">
+                                <span class="theme-toggle-track">
+                                    <span class="theme-toggle-thumb"></span>
+                                </span>
+                                <span class="theme-toggle-label" data-theme-label>Theme</span>
+                            </button>
                             <div class="actions-area">
                                 <div class="tmp-side-collups-area d-none d-xl-block">
                                     <button class="tmp-menu-bars tmp_button_active"><i class="fa-regular fa-bars-staggered"></i></button>
@@ -815,6 +853,7 @@
     <script src="assets/js/vendor/backtop.js"></script>
     <script src="assets/js/plugins/text-type.js"></script>
     <!-- custom Js -->
+    <script src="assets/js/theme-switcher.js"></script>
     <script src="assets/js/main.js"></script>
 </body>
 
