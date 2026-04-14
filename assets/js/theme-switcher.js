@@ -21,28 +21,17 @@
       : "light";
   }
 
-  function isLightPage(pathname) {
-    return /-white\.html$/i.test(pathname);
+  function setTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, theme);
+    } catch (error) {
+      // Ignore storage access issues.
+    }
   }
 
-  function getPairedPath(pathname, targetTheme) {
-    if (!/\.html$/i.test(pathname)) {
-      return null;
-    }
-
-    var nextPath = pathname;
-
-    if (targetTheme === "light" && !isLightPage(pathname)) {
-      nextPath = pathname.replace(/\.html$/i, "-white.html");
-    } else if (targetTheme === "dark" && isLightPage(pathname)) {
-      nextPath = pathname.replace(/-white\.html$/i, ".html");
-    }
-
-    return nextPath === pathname ? null : nextPath;
-  }
-
-  function withCurrentLocation(pathname) {
-    return pathname + window.location.search + window.location.hash;
+  function getCurrentTheme() {
+    return document.documentElement.getAttribute("data-theme") || "dark";
   }
 
   function createOverlay() {
@@ -58,7 +47,7 @@
   }
 
   function updateToggleState(button) {
-    var currentTheme = isLightPage(window.location.pathname) ? "light" : "dark";
+    var currentTheme = getCurrentTheme();
     button.setAttribute("aria-pressed", currentTheme === "dark" ? "true" : "false");
     button.setAttribute(
       "aria-label",
@@ -75,29 +64,49 @@
     updateToggleState(button);
 
     button.addEventListener("click", function () {
-      var currentTheme = isLightPage(window.location.pathname) ? "light" : "dark";
+      var currentTheme = getCurrentTheme();
       var nextTheme = currentTheme === "dark" ? "light" : "dark";
-      var targetPath = getPairedPath(window.location.pathname, nextTheme);
-
-      if (!targetPath) {
-        return;
-      }
-
-      try {
-        window.localStorage.setItem(STORAGE_KEY, nextTheme);
-        window.sessionStorage.setItem(TRANSITION_KEY, "1");
-      } catch (error) {
-        // Ignore storage access issues.
-      }
 
       document.documentElement.classList.add("theme-is-transitioning");
       createOverlay();
 
       window.setTimeout(function () {
-        window.location.href = withCurrentLocation(targetPath);
+        setTheme(nextTheme);
+        updateToggleState(button);
+        document.documentElement.classList.remove("theme-is-transitioning");
+        
+        // Remove overlay
+        var overlay = document.querySelector(".theme-transition-overlay");
+        if (overlay) {
+          overlay.remove();
+        }
       }, FADE_DURATION);
     });
   }
+
+  // Initialize theme on page load
+  function initTheme() {
+    var preferredTheme = getPreferredTheme();
+    setTheme(preferredTheme);
+  }
+
+  // Set up the toggle button when DOM is ready
+  function setupToggle() {
+    var button = document.querySelector("[data-theme-toggle]");
+    if (button) {
+      bindToggle(button);
+    }
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupToggle);
+  } else {
+    setupToggle();
+  }
+
+  initTheme();
+})();
 
   function initEntranceTransition() {
     try {
