@@ -2,7 +2,6 @@
   "use strict";
 
   var STORAGE_KEY = "preferred-theme";
-  var TRANSITION_KEY = "theme-transition";
   var FADE_DURATION = 220;
 
   function getPreferredTheme() {
@@ -22,7 +21,11 @@
   }
 
   function setTheme(theme) {
-    document.documentElement.setAttribute("data-theme", theme);
+    if (theme === "light") {
+      document.documentElement.setAttribute("data-theme", "light");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
     try {
       window.localStorage.setItem(STORAGE_KEY, theme);
     } catch (error) {
@@ -31,19 +34,8 @@
   }
 
   function getCurrentTheme() {
-    return document.documentElement.getAttribute("data-theme") || "dark";
-  }
-
-  function createOverlay() {
-    var overlay = document.createElement("div");
-    overlay.className = "theme-transition-overlay";
-    document.body.appendChild(overlay);
-
-    requestAnimationFrame(function () {
-      overlay.classList.add("is-visible");
-    });
-
-    return overlay;
+    var attr = document.documentElement.getAttribute("data-theme");
+    return attr === "light" ? "light" : "dark";
   }
 
   function updateToggleState(button) {
@@ -67,20 +59,8 @@
       var currentTheme = getCurrentTheme();
       var nextTheme = currentTheme === "dark" ? "light" : "dark";
 
-      document.documentElement.classList.add("theme-is-transitioning");
-      createOverlay();
-
-      window.setTimeout(function () {
-        setTheme(nextTheme);
-        updateToggleState(button);
-        document.documentElement.classList.remove("theme-is-transitioning");
-        
-        // Remove overlay
-        var overlay = document.querySelector(".theme-transition-overlay");
-        if (overlay) {
-          overlay.remove();
-        }
-      }, FADE_DURATION);
+      setTheme(nextTheme);
+      updateToggleState(button);
     });
   }
 
@@ -90,57 +70,18 @@
     setTheme(preferredTheme);
   }
 
-  // Set up the toggle button when DOM is ready
-  function setupToggle() {
-    var button = document.querySelector("[data-theme-toggle]");
-    if (button) {
-      bindToggle(button);
-    }
-  }
-
-  // Initialize on DOM ready
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", setupToggle);
-  } else {
-    setupToggle();
-  }
-
-  initTheme();
-})();
-
-  function initEntranceTransition() {
-    try {
-      if (!window.sessionStorage.getItem(TRANSITION_KEY)) {
-        return;
-      }
-
-      window.sessionStorage.removeItem(TRANSITION_KEY);
-    } catch (error) {
-      return;
-    }
-
-    document.documentElement.classList.add("theme-is-entering");
-
-    window.setTimeout(function () {
-      document.documentElement.classList.remove("theme-is-entering");
-    }, FADE_DURATION + 120);
-  }
-
+  // Set up toggle buttons
   function init() {
     var toggles = document.querySelectorAll("[data-theme-toggle]");
-    if (!toggles.length) {
-      return;
-    }
-
-    initEntranceTransition();
-    toggles.forEach(bindToggle);
+    toggles.forEach(function(button) {
+      bindToggle(button);
+    });
   }
 
-  window.ThemeSwitcher = {
-    getPreferredTheme: getPreferredTheme,
-    getPairedPath: getPairedPath,
-  };
+  // Initialize theme first
+  initTheme();
 
+  // Set up toggles when DOM is ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
