@@ -60,6 +60,7 @@
       tmPk.animationOnHover();
       tmPk.odoMeter();
       tmPk.tiltAnimation();
+      tmPk.imageScrollAnimation();
       // tmPk.titleSplit_2();
     },
 
@@ -775,6 +776,108 @@
         });
       }
 
+    },
+
+    imageScrollAnimation: function() {
+      $(document).ready(function() {
+        const thumbnailWrap = $('.project-details-thumnail-wrap');
+        const thumbnailImg = thumbnailWrap.find('img');
+
+        if (thumbnailWrap.length && thumbnailImg.length) {
+          let isMouseOver = false;
+          let lastScrollY = 0;
+          let imageHeight = 0;
+          let containerHeight = 400; // matches CSS height
+
+          // Calculate image height after it loads
+          thumbnailImg.on('load', function() {
+            imageHeight = this.naturalHeight * (this.offsetWidth / this.naturalWidth);
+            updateImagePosition();
+          });
+
+          // If image is already loaded
+          if (thumbnailImg[0].complete) {
+            imageHeight = thumbnailImg[0].naturalHeight * (thumbnailImg[0].offsetWidth / thumbnailImg[0].naturalWidth);
+          }
+
+          function updateImagePosition() {
+            if (!isMouseOver || imageHeight <= containerHeight) return;
+
+            const scrollDelta = window.scrollY - lastScrollY;
+            const currentTransform = thumbnailImg.css('transform');
+            let currentY = 0;
+
+            // Extract current Y translation from transform
+            if (currentTransform !== 'none') {
+              const matrix = currentTransform.match(/matrix\(([^)]+)\)/);
+              if (matrix) {
+                currentY = parseFloat(matrix[1].split(',')[5]) || 0;
+              }
+            }
+
+            // Calculate new position
+            let newY = currentY - scrollDelta * 2; // Multiply by 2 for more responsive scrolling
+
+            // Constrain the image within bounds
+            const maxY = 0;
+            const minY = -(imageHeight - containerHeight);
+
+            newY = Math.max(minY, Math.min(maxY, newY));
+
+            thumbnailImg.css('transform', `translateY(${newY}px)`);
+            lastScrollY = window.scrollY;
+          }
+
+          // Mouse enter handler
+          thumbnailWrap.on('mouseenter', function() {
+            isMouseOver = true;
+            lastScrollY = window.scrollY;
+            $('body').css('overflow', 'hidden'); // Prevent page scroll
+          });
+
+          // Mouse leave handler
+          thumbnailWrap.on('mouseleave', function() {
+            isMouseOver = false;
+            $('body').css('overflow', 'auto'); // Restore page scroll
+          });
+
+          // Wheel event handler for more precise control
+          thumbnailWrap.on('wheel', function(e) {
+            if (!isMouseOver || imageHeight <= containerHeight) return;
+
+            e.preventDefault();
+
+            const currentTransform = thumbnailImg.css('transform');
+            let currentY = 0;
+
+            // Extract current Y translation from transform
+            if (currentTransform !== 'none') {
+              const matrix = currentTransform.match(/matrix\(([^)]+)\)/);
+              if (matrix) {
+                currentY = parseFloat(matrix[1].split(',')[5]) || 0;
+              }
+            }
+
+            // Calculate new position based on wheel delta
+            const scrollSpeed = 2;
+            let newY = currentY - (e.originalEvent.deltaY * scrollSpeed);
+
+            // Constrain the image within bounds
+            const maxY = 0;
+            const minY = -(imageHeight - containerHeight);
+
+            newY = Math.max(minY, Math.min(maxY, newY));
+
+            thumbnailImg.css('transform', `translateY(${newY}px)`);
+          });
+
+          // Update on window resize
+          $(window).on('resize', function() {
+            containerHeight = thumbnailWrap.height();
+            imageHeight = thumbnailImg[0].naturalHeight * (thumbnailImg[0].offsetWidth / thumbnailImg[0].naturalWidth);
+          });
+        }
+      });
     },
 
   };
