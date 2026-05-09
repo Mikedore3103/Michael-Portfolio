@@ -960,7 +960,7 @@ blockquote b {
 }
 
 .tmp-section-gap {
-  padding: 120px 0;
+  padding: 60px 0;
 }
 @media only screen and (min-width: 768px) and (max-width: 991px) {
   .tmp-section-gap {
@@ -17840,7 +17840,7 @@ section.clients-testimonial-area {
 }
 @media only screen and (max-width: 1199px) {
   .banner-one-main-wrapper .banner-right-content img {
-    margin-right: 0;
+    margin-right: -50px;
   }
 }
 @media only screen and (min-width: 768px) and (max-width: 991px) {
@@ -17850,12 +17850,11 @@ section.clients-testimonial-area {
 }
 @media only screen and (max-width: 767px) {
   .banner-one-main-wrapper .banner-right-content img {
-    margin: auto;
   }
 }
 @media only screen and (max-width: 575px) {
   .banner-one-main-wrapper .banner-right-content img {
-    max-width: 260px;
+    max-width: 460px;
   }
 }
 .banner-one-main-wrapper .banner-right-content .banner-big-text-1 {
@@ -25801,7 +25800,7 @@ body.tmp-white-version.index-8 .tmp-contact-about-inner .info-box {
 .project-details-thumnail-wrap {
   position: relative;
   overflow: hidden;
-  height: 400px;
+  height: 75vh;
   border-radius: 20px;
   cursor: ns-resize;
 }

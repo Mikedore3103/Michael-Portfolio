@@ -787,7 +787,7 @@
           let isMouseOver = false;
           let lastScrollY = 0;
           let imageHeight = 0;
-          let containerHeight = 400; // matches CSS height
+          let containerHeight = thumbnailWrap.height(); // Dynamic height based on CSS
 
           // Calculate image height after it loads
           thumbnailImg.on('load', function() {
@@ -832,20 +832,16 @@
           thumbnailWrap.on('mouseenter', function() {
             isMouseOver = true;
             lastScrollY = window.scrollY;
-            $('body').css('overflow', 'hidden'); // Prevent page scroll
           });
 
           // Mouse leave handler
           thumbnailWrap.on('mouseleave', function() {
             isMouseOver = false;
-            $('body').css('overflow', 'auto'); // Restore page scroll
           });
 
           // Wheel event handler for more precise control
           thumbnailWrap.on('wheel', function(e) {
             if (!isMouseOver || imageHeight <= containerHeight) return;
-
-            e.preventDefault();
 
             const currentTransform = thumbnailImg.css('transform');
             let currentY = 0;
@@ -865,10 +861,13 @@
             // Constrain the image within bounds
             const maxY = 0;
             const minY = -(imageHeight - containerHeight);
+            const clampedY = Math.max(minY, Math.min(maxY, newY));
 
-            newY = Math.max(minY, Math.min(maxY, newY));
-
-            thumbnailImg.css('transform', `translateY(${newY}px)`);
+            // Only prevent page scrolling if the image can move
+            if (clampedY !== currentY) {
+              e.preventDefault();
+              thumbnailImg.css('transform', `translateY(${clampedY}px)`);
+            }
           });
 
           // Update on window resize
